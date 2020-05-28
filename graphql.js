@@ -116,7 +116,7 @@ function calcFantasyPoints(stats) {
     match.players = m.players.map(p => {
       let player = {
         "steamAccountId": p.steamAccountId,
-        "name": p.steamAccount.name,
+        "name": p.steamAccount.name/*,
         "fantasyStats": {
           "isRadiant": p.isRadiant,
           "kills": p.kills,
@@ -132,7 +132,7 @@ function calcFantasyPoints(stats) {
           "stunDuration": p.stats.heroDamageReport.dealtTotal.stunDuration,
           "towerKills": calcTowerKills(p.playbackData?.csEvents),
           "roshKills": calcRoshKills(p.playbackData?.csEvents)
-        }
+        }*/
       };
       player.fantasyPoints = Math.floor(calcFantasyPoints(player.fantasyStats));
       return player;
