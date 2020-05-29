@@ -1,7 +1,7 @@
 const graphql = require('graphql-request').request;
 const fs = require('fs');
 
-const league = process.argv[2] || 11974;
+const league = process.argv[2] || 12004;
 const from = process.argv[3] || 0;
 const take = 10;
 
