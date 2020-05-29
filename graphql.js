@@ -1,7 +1,7 @@
 const graphql = require('graphql-request').request;
 const fs = require('fs');
 
-const league = process.argv[2] || 12004;
+const league = process.argv[2] || 11974;
 const from = process.argv[3] || 0;
 const take = 10;
 
@@ -114,27 +114,29 @@ function calcFantasyPoints(stats) {
     match.radiantKills = m.stats.radiantKills?.reduce((a, b) => a + b, 0);
     match.direKills = m.stats.direKills?.reduce((a, b) => a + b, 0);
     match.players = m.players.map(p => {
+      let fantasyStats = {
+        "isRadiant": p.isRadiant,
+        "kills": p.kills,
+        "deaths": p.deaths,
+        "numLastHits": p.numLastHits,
+        "numDenies": p.numDenies,
+        "goldPerMin": p.goldPerMinute,
+        "wards": p.stats.wards.filter(w => w.type == 0).length,
+        "stacks": p.stats.campStack?.pop() || 0,
+        "runes": p.stats.runes?.length || 0,
+        "firstBlood": p.playbackData.killEvents[0]?.time == m.firstBloodTime,
+        "teamFightParticipation": calcTeamfightParticipation(p, match.radiantKills, match.direKills),
+        "stunDuration": p.stats.heroDamageReport.dealtTotal.stunDuration,
+        "towerKills": calcTowerKills(p.playbackData?.csEvents),
+        "roshKills": calcRoshKills(p.playbackData?.csEvents)
+      };
       let player = {
         "steamAccountId": p.steamAccountId,
-        "name": p.steamAccount.name/*,
-        "fantasyStats": {
-          "isRadiant": p.isRadiant,
-          "kills": p.kills,
-          "deaths": p.deaths,
-          "numLastHits": p.numLastHits,
-          "numDenies": p.numDenies,
-          "goldPerMin": p.goldPerMinute,
-          "wards": p.stats.wards.filter(w => w.type == 0).length,
-          "stacks": p.stats.campStack?.pop() || 0,
-          "runes": p.stats.runes?.length || 0,
-          "firstBlood": p.playbackData.killEvents[0]?.time == m.firstBloodTime,
-          "teamFightParticipation": calcTeamfightParticipation(p, match.radiantKills, match.direKills),
-          "stunDuration": p.stats.heroDamageReport.dealtTotal.stunDuration,
-          "towerKills": calcTowerKills(p.playbackData?.csEvents),
-          "roshKills": calcRoshKills(p.playbackData?.csEvents)
-        }*/
+        "name": p.steamAccount.name,
+        
       };
-      player.fantasyPoints = Math.floor(calcFantasyPoints(player.fantasyStats));
+      player.fantasyPoints = Math.round((calcFantasyPoints(fantasyStats) + Number.EPSILON) * 100) / 100;
+      
       return player;
     });
     return match;
