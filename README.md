@@ -14,10 +14,10 @@ $> npm install
 ## Usage
 
 ```Bash
-$> node ./graphql.js [ticket] [skip]
+$> node ./graphql.js [ticket] [maxTotal]
 ```
 
-The script will pull all the matches played on the given ticket in batches of 10, calculate the fantasy points and write them to a `matches.json` file. You can optionally elect to skip the first `[skip]` matches.
+The script will pull all the matches played on the given ticket in batches of 10, calculate the fantasy points and write them to a `matches.json` file. You can optionally elect to only fetch the `[maxTotal]` most recent matches.
 
 ## Limitation
 

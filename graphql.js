@@ -2,10 +2,10 @@ const graphql = require('graphql-request').request;
 const fs = require('fs');
 
 const league = process.argv[2] || 12004;
-const from = process.argv[3] || 0;
-const take = 10;
+const maxTotal = Number(process.argv[3]) || 0;
+const maxTake = 10;
 
-function getQuery(skip) {
+function getQuery(skip, take) {
   return `{
     leagues(request: {leagueId: ${league}}) {
       matches(request: {skip: ${skip}, take: ${take}, isParsed: true}) {
@@ -87,21 +87,29 @@ function calcFantasyPoints(stats) {
       + 5 * stats.teamFightParticipation;
 }
 
+function nextTake(f, m) {
+  return m ? Math.min(maxTake, m - f) : maxTake;
+}
 
 (async () => {
 
-  let skip = 0 + from;
+  let skip = 0;
+  let take = nextTake(0, maxTotal);
+
   console.log(`Fetching first batch of ${take} ...`);
-  let matches = (await graphql(`https://api.stratz.com/graphql`, getQuery(skip))).leagues[0].matches;
+  let matches = (await graphql(`https://api.stratz.com/graphql`, getQuery(skip, take))).leagues[0].matches;
   console.log('done.');
   let lastLength = matches.length;
-  while (lastLength == take) {
-    skip += take;
+  skip += take;
+  take = nextTake(skip, maxTotal);
+  while (lastLength == maxTake && take > 0) {
     console.log(`Fetching next batch of ${take} ...`);
-    let next =  (await graphql(`https://api.stratz.com/graphql`, getQuery(skip))).leagues[0].matches;
+    let next =  (await graphql(`https://api.stratz.com/graphql`, getQuery(skip, take))).leagues[0].matches;
     console.log('done.');
     lastLength = next.length;
     matches.push(...next);
+    skip += take;
+    take = nextTake(skip, maxTotal);
   } 
 
   // fs.writeFileSync('temp.json', JSON.stringify(matches));
@@ -132,8 +140,7 @@ function calcFantasyPoints(stats) {
       };
       let player = {
         "steamAccountId": p.steamAccountId,
-        "name": p.steamAccount.name,
-        
+        "name": p.steamAccount.name
       };
       player.fantasyPoints = Math.round((calcFantasyPoints(fantasyStats) + Number.EPSILON) * 100) / 100;
       
