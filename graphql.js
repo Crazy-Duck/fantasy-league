@@ -95,22 +95,18 @@ function nextTake(f, m) {
 
   let skip = 0;
   let take = nextTake(0, maxTotal);
+  let matches = [];
+  let lastLength = 0;
 
-  console.log(`Fetching first batch of ${take} ...`);
-  let matches = (await graphql(`https://api.stratz.com/graphql`, getQuery(skip, take))).leagues[0].matches;
-  console.log('done.');
-  let lastLength = matches.length;
-  skip += take;
-  take = nextTake(skip, maxTotal);
-  while (lastLength == maxTake && take > 0) {
-    console.log(`Fetching next batch of ${take} ...`);
+  do {
+    console.log(`Fetching batch of ${take} ...`);
     let next =  (await graphql(`https://api.stratz.com/graphql`, getQuery(skip, take))).leagues[0].matches;
     console.log('done.');
     lastLength = next.length;
     matches.push(...next);
     skip += take;
     take = nextTake(skip, maxTotal);
-  } 
+  } while (lastLength == maxTake && take > 0)
 
   // fs.writeFileSync('temp.json', JSON.stringify(matches));
 
