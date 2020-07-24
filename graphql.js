@@ -73,7 +73,7 @@ function calcRoshKills(csEvents) {
 function calcFantasyPoints(stats) {
 
   return 0.3 * stats.kills
-      + 5 - 0.3 * stats.deaths
+      + 3 - 0.3 * stats.deaths
       + 0.003 * stats.numLastHits
       + 0.003 * stats.numDenies
       + 0.002 * stats.goldPerMin
@@ -84,7 +84,7 @@ function calcFantasyPoints(stats) {
       + 0.25 * stats.runes
       + 4 * (stats.firstBlood ? 1 : 0)
       + 0.00005 * stats.stunDuration
-      + 5 * stats.teamFightParticipation;
+      + 3 * stats.teamFightParticipation;
 }
 
 function nextTake(f, m) {
